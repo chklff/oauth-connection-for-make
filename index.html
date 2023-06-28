@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Create a Connection</title>
+        <script>
+        async function executeScript(service, customer_id) {
+            const response = await fetch(`http://147.182.220.74:777/connection?service=${service}&customer_id=${customer_id}`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({service: service, customer_id: customer_id})
+            });
+            
+            const { url, connectionId } = await response.json();
+
+            const win = window.open(url);
+
+            const timer = setInterval(async function() {
+                if (win.closed) {
+                    clearInterval(timer);
+                    await fetch('http://147.182.220.74:777/test', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ connection: connectionId }) // replace <connection_id> with actual connection id value
+                    });
+                }
+            }, 1000);
+        }
+        </script>
+    </head>
+    <body>
+        <button onclick="executeScript('dropbox', 'alextest@m.com')">Create a Connection</button>
+    </body>
+</html>

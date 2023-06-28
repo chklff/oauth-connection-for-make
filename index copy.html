@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Execute Script</title>
+        <script>
+        async function executeScript(service, customer_id) {
+            const response = await fetch(`http://147.182.220.74:777/connection?service=${service}&customer_id=${customer_id}`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({service: service, customer_id: customer_id})
+            });
+            
+            const { url, connectionId } = await response.json();
+
+            const win = window.open(url);
+
+            const timer = setInterval(async function() {
+                if (win.closed) {
+                    clearInterval(timer);
+                    await fetch('https://hook.us1.integromat.com/36d8nvky23cvs37eoi1d3q6t48e155ti', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ user_id: customer_id, service: service })
+                    });
+                }
+            }, 1000);
+        }
+        </script>
+    </head>
+    <body>
+        <button onclick="executeScript('dropbox', 'alextest@m.com')">Execute script</button>
+    </body>
+</html>
