@@ -2,6 +2,7 @@ const express = require('express');
 const fetch = require('node-fetch');
 const bodyParser = require('body-parser');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
@@ -18,8 +19,23 @@ const teamId = process.env.TEAM_ID;
 app.use(bodyParser.json());
 
 // Serve the HTML file if there are no query parameters
+// app.get('/', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'index.html'));
+// });
+
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    // Read the environment variables
+    const port = process.env.PORT || 777;
+    const host = process.env.HOST || 'http://localhost';
+
+    // Read the index.html file into a string
+    let html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+
+    // Replace placeholders in the HTML with the environment variables
+    html = html.replace(/{{HOST}}/g, host).replace(/{{PORT}}/g, port);
+
+    // Send the modified HTML to the client
+    res.send(html);
 });
 
 // Connection endpoint
@@ -30,15 +46,17 @@ app.post('/connection', async (req, res) => {
             method: 'POST',
             headers: authHeaders,
             body: JSON.stringify({
-                "accountName": "Google Analytics 4 short version",
+                "accountName": "Google Analytics 4 last",
                 "accountType": "google-analytics-4",
                 "property": "11111"
             })
         });
         const createConnection = await createConnectionResponse.json();
         const connection = createConnection.connection;
+        console.log(createConnection)
 
         const generateConsentURL = `${instance}/api/v2/oauth/auth/${connection.id}`;
+        console.log(generateConsentURL)
 
         const secondResponse = await fetch(generateConsentURL, {
             method: 'GET',
@@ -65,6 +83,7 @@ app.post('/test', async (req, res) => {
             headers: authHeaders,
         });
         const responseBody = await testConnection.json();
+        console.log(responseBody)
 
         res.json({ result: responseBody });
     } catch (error) {

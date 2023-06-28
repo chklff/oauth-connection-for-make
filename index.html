@@ -4,7 +4,7 @@
         <title>Create a Connection</title>
         <script>
         async function executeScript(service, customer_id) {
-            const response = await fetch(`http://147.182.220.74:777/connection?service=${service}&customer_id=${customer_id}`, {
+            const response = await fetch(`{{HOST}}:{{PORT}}/connection?service=${service}&customer_id=${customer_id}`, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -20,7 +20,7 @@
             const timer = setInterval(async function() {
                 if (win.closed) {
                     clearInterval(timer);
-                    await fetch('http://147.182.220.74:777/test', {
+                    await fetch('{{HOST}}:{{PORT}}/test', {
                         method: 'POST',
                         headers: {
                             'Accept': 'application/json',
