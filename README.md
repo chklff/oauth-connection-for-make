@@ -31,7 +31,7 @@ Follow these steps to get the server up and running:
 
 Now, your server should be up and running!
 
-## API Call for Connection Creation
+## Please pay attention to an API Call for Connection Creation in server.js
 
 The server makes an API call to the Make platform to create a connection. The request to create a connection is done via a `POST` request, which contains a JSON object in the body with properties `accountName`, `accountType`, `scopes`, and others like a custom for each connection `property`. The values for these properties should correspond to the correct account details you want to connect to. You can see this in the code as follows:
 
@@ -47,3 +47,17 @@ fetch(createConnectionCall, {
         "property": "11111"
     })
 })
+
+
+Please note that the `accountName`, `accountType`, and `property` must have correct values according to the [Make API documentation](https://www.make.com/en/api-documentation/connections-post). Failing to provide the correct values may lead to an error response such as:
+
+{
+  message: 'The request failed due to failure of a previous request.',
+  code: 'SC424',
+  suberrors: [
+    {
+      message: '[403] Error: 403\nThe caller does not have permission',
+      name: 'RuntimeError'
+    }
+  ]
+}
