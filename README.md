@@ -30,3 +30,20 @@ Follow these steps to get the server up and running:
     ```
 
 Now, your server should be up and running!
+
+## API Call for Connection Creation
+
+The server makes an API call to create a connection. You can see this in the code as follows:
+
+```javascript
+const createConnectionCall = `${instance}/api/v2/connections?teamId=${teamId}&inspector=1`;
+
+fetch(createConnectionCall, {
+    method: 'POST',
+    headers: authHeaders,
+    body: JSON.stringify({
+        "accountName": "Google Analytics 4 last",
+        "accountType": "google-analytics-4",
+        "property": "11111"
+    })
+})
