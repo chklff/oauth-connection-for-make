@@ -33,7 +33,7 @@ Now, your server should be up and running!
 
 ## API Call for Connection Creation
 
-The server makes an API call to create a connection. You can see this in the code as follows:
+The server makes an API call to the Make platform to create a connection. The request to create a connection is done via a `POST` request, which contains a JSON object in the body with properties `accountName`, `accountType`, `scopes`, and others like a custom for each connection `property`. The values for these properties should correspond to the correct account details you want to connect to. You can see this in the code as follows:
 
 ```javascript
 const createConnectionCall = `${instance}/api/v2/connections?teamId=${teamId}&inspector=1`;
