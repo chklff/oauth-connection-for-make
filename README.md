@@ -2,6 +2,8 @@
 
 This server helps to create OAuth connections for Make accounts. It's a handy utility that simplifies the process of setting up OAuth connections. 
 
+There is more detailed document if you want to follow the whole process from the start: [LINK](https://dl.dropbox.com/s/b6y9d4et6g9jeux/Create%20an%20OAuth%20connection%20using%20API%20%281%29.pdf)
+
 Watch the full process of connection creation and script walkthrough in this [video](https://www.loom.com/share/c8635ca5736544ee878bdf09e6b411ce).
 
 ## Installation & Setup
