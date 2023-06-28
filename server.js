@@ -41,8 +41,8 @@ app.get('/', (req, res) => {
 // Connection endpoint
 app.post('/connection', async (req, res) => {
     try {
-        const firstURL = `${instance}/api/v2/connections?teamId=${teamId}&inspector=1`;
-        const createConnectionResponse = await fetch(firstURL, {
+        const createConnectionCall = `${instance}/api/v2/connections?teamId=${teamId}&inspector=1`;
+        const createConnectionResponse = await fetch(createConnectionCall, {
             method: 'POST',
             headers: authHeaders,
             body: JSON.stringify({
