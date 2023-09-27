@@ -46,9 +46,9 @@ app.post('/connection', async (req, res) => {
             method: 'POST',
             headers: authHeaders,
             body: JSON.stringify({
-                "accountName": "Google Analytics 4 last",
-                "accountType": "google-analytics-4",
-                "property": "11111"
+                "accountName": process.env.ACCOUNT_NAME,
+                "accountType": process.env.ACCOUNT_TYPE,
+                "property": process.env.PROPERTY
             })
         });
         const createConnection = await createConnectionResponse.json();
