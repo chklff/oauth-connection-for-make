@@ -30,8 +30,10 @@ Follow these steps to get the server up and running:
     ```
     npm start
     ```
-
 Now, your server should be up and running!
+
+4. **Open in browser http://server:port page replace this with credentials set in your .env file for example: http://123.456.789.1:777/
+
 
 ## Please pay attention to an API Call for Connection Creation in server.js
 
