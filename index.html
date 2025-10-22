@@ -1,39 +1,253 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Create a Connection</title>
-        <script>
-        async function executeScript(service, customer_id) {
-            const response = await fetch(`{{HOST}}:{{PORT}}/connection?service=${service}&customer_id=${customer_id}`, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({service: service, customer_id: customer_id})
-            });
-            
-            const { url, connectionId } = await response.json();
+        <meta charset="utf-8">
+        <title>Make OAuth Connection Helper</title>
+        <style>
+            body {
+                font-family: sans-serif;
+                max-width: 720px;
+                margin: 40px auto;
+                padding: 0 16px;
+                color: #1f2933;
+                background-color: #f7fafc;
+            }
 
-            const win = window.open(url);
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: 1rem;
+            }
 
-            const timer = setInterval(async function() {
-                if (win.closed) {
-                    clearInterval(timer);
-                    await fetch('{{HOST}}:{{PORT}}/test', {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ connection: connectionId }) // replace <connection_id> with actual connection id value
-                    });
-                }
-            }, 1000);
-        }
-        </script>
+            label {
+                display: block;
+                margin-top: 1rem;
+                font-weight: 600;
+            }
+
+            input {
+                width: 100%;
+                padding: 8px;
+                border: 1px solid #cbd5e0;
+                border-radius: 4px;
+                margin-top: 0.5rem;
+                box-sizing: border-box;
+            }
+
+            button {
+                margin-top: 1.5rem;
+                padding: 10px 16px;
+                background-color: #2563eb;
+                border: none;
+                border-radius: 4px;
+                color: #fff;
+                font-size: 1rem;
+                cursor: pointer;
+            }
+
+            button:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
+            }
+
+            pre {
+                background: #1f2933;
+                color: #e2e8f0;
+                padding: 12px;
+                border-radius: 4px;
+                overflow: auto;
+            }
+        </style>
     </head>
     <body>
-        <button onclick="executeScript('dropbox', 'alextest@m.com')">Create a Connection</button>
+        <h1>Make OAuth Connection Helper</h1>
+        <p>Provide the blueprint filename (stored in <code>./blueprints</code>). When you submit, the server will analyse the scenario, build the connection spec, create the connection, and redirect you to the Make consent screen automatically.</p>
+
+        <form id="connectionForm">
+            <label for="blueprint">Blueprint filename</label>
+            <select id="blueprint" name="blueprint">
+                <option value="">Loading blueprints...</option>
+            </select>
+
+            <label for="accountName">Account name override (optional)</label>
+            <input id="accountName" name="accountName" type="text" placeholder="HubSpot CRM connection">
+
+            <button type="submit">Create &amp; Redirect</button>
+        </form>
+
+        <script>
+        const logHeading = document.createElement('h2');
+        logHeading.textContent = 'Log';
+        const logArea = document.createElement('pre');
+        logArea.id = 'log';
+        logArea.textContent = 'Awaiting action...';
+        document.body.appendChild(logHeading);
+        document.body.appendChild(logArea);
+
+        const testButton = document.createElement('button');
+        testButton.textContent = 'Run Test';
+        testButton.style.display = 'none';
+        testButton.addEventListener('click', () => triggerTest(testButton.dataset.connectionId));
+        document.body.appendChild(testButton);
+
+        function log(message) {
+            const timestamp = new Date().toISOString();
+            logArea.textContent += `\n[${timestamp}] ${message}`;
+        }
+
+        function resetLog() {
+            logArea.textContent = 'Workflow started...';
+            testButton.style.display = 'none';
+            delete testButton.dataset.connectionId;
+        }
+
+        async function loadBlueprints() {
+            const select = document.getElementById('blueprint');
+            try {
+                const response = await fetch('/api/blueprints');
+                if (!response.ok) {
+                    throw new Error(`Failed to load blueprints (${response.status})`);
+                }
+                const data = await response.json();
+                select.innerHTML = '';
+                if (Array.isArray(data.blueprints) && data.blueprints.length) {
+                    data.blueprints.forEach((name) => {
+                        const option = document.createElement('option');
+                        option.value = name;
+                        option.textContent = name;
+                        select.appendChild(option);
+                    });
+                } else {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No blueprints found';
+                    select.appendChild(option);
+                }
+            } catch (error) {
+                select.innerHTML = '';
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Error loading blueprints';
+                select.appendChild(option);
+                console.error(error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadBlueprints);
+
+        async function triggerTest(connectionId) {
+            if (!connectionId) {
+                log('No connection id available to test.');
+                return;
+            }
+            try {
+                log('Testing connection...');
+                const testResponse = await fetch('/test', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ connection: connectionId })
+                });
+                const testData = await testResponse.json();
+                if (!testResponse.ok) {
+                    log(`❌ Test failed: ${testData.message || 'Unknown error'}`);
+                    if (testData.details) {
+                        log(`Details: ${testData.details}`);
+                    }
+                } else {
+                    log('✅ Connection test triggered. Check Make inspector for results.');
+                    testButton.style.display = 'none';
+                    delete testButton.dataset.connectionId;
+                }
+            } catch (err) {
+                log(`❌ Test request error: ${err.message}`);
+            }
+        }
+
+        document.getElementById('connectionForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const select = document.getElementById('blueprint');
+            const blueprint = select.value;
+            const accountName = document.getElementById('accountName').value.trim();
+            const button = event.target.querySelector('button[type="submit"]');
+
+            if (!blueprint) {
+                log('Select a blueprint before submitting.');
+                return;
+            }
+
+            resetLog();
+            button.disabled = true;
+
+            try {
+                log(`Calling backend to build connection for "${blueprint}"...`);
+                const response = await fetch('/connection', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        blueprint,
+                        accountName: accountName || undefined
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    log(`❌ Failed: ${data.message || 'Unknown error'}`);
+                    if (data.details) {
+                        log(`Details: ${data.details}`);
+                    }
+                    return;
+                }
+
+                log(`✅ Connection created (id ${data.connectionId}). Opening consent window...`);
+                if (data.updatedBlueprint) {
+                    log(`Updated blueprint saved to ${data.updatedBlueprint}`);
+                }
+                if (typeof data.updatedModules === 'number') {
+                    log(`Modules remapped: ${data.updatedModules}`);
+                }
+                const params = [
+                    'popup=yes',
+                    'width=900',
+                    'height=760',
+                    `left=${(window.screen.width - 900) / 2}`,
+                    `top=${(window.screen.height - 760) / 2}`
+                ].join(',');
+                const consentWindow = window.open(data.url, '_blank', params);
+                if (!consentWindow) {
+                    log('⚠️ Popup blocked. Opening consent in current tab.');
+                    window.location.href = data.url;
+                    testButton.style.display = 'inline-block';
+                    testButton.dataset.connectionId = data.connectionId;
+                    log('Use the Run Test button after completing consent.');
+                    return;
+                }
+
+                testButton.style.display = 'inline-block';
+                testButton.dataset.connectionId = data.connectionId;
+
+                if (!consentWindow) {
+                    return;
+                }
+
+                const poll = setInterval(async () => {
+                    if (consentWindow.closed) {
+                        clearInterval(poll);
+                        log('Consent window closed. Triggering test automatically...');
+                        triggerTest(data.connectionId);
+                    }
+                }, 1000);
+            } catch (error) {
+                log(`❌ Unexpected error: ${error.message}`);
+            } finally {
+                button.disabled = false;
+            }
+        });
+        </script>
     </body>
 </html>

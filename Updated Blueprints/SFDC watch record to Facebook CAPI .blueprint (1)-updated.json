@@ -1,0 +1,650 @@
+{
+    "name": "SFDC to Facebook CAPI ",
+    "flow": [
+        {
+            "id": 5,
+            "module": "salesforce:watchRecords",
+            "version": 3,
+            "parameters": {
+                "__IMTCONN__": 4524917,
+                "select": "create",
+                "sObject": "Account",
+                "limit": 2
+            },
+            "mapper": {},
+            "metadata": {
+                "designer": {
+                    "x": -635,
+                    "y": 103
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "label": "Facebook SFDC connection",
+                            "data": {
+                                "scoped": "true",
+                                "connection": "salesforce"
+                            }
+                        },
+                        "select": {
+                            "label": "By Created Time"
+                        },
+                        "sObject": {
+                            "label": "Account"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:salesforce,salesforce2",
+                        "label": "Connection",
+                        "required": true
+                    },
+                    {
+                        "name": "select",
+                        "type": "select",
+                        "label": "Watch Records",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "create",
+                                "update"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "sObject",
+                        "type": "select",
+                        "label": "Type",
+                        "required": true
+                    },
+                    {
+                        "name": "limit",
+                        "type": "uinteger",
+                        "label": "Limit",
+                        "required": true
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "Id",
+                        "label": "Account ID",
+                        "type": "text"
+                    },
+                    {
+                        "name": "IsDeleted",
+                        "label": "Deleted",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "MasterRecordId",
+                        "label": "Master Record ID",
+                        "type": "text"
+                    },
+                    {
+                        "name": "Name",
+                        "label": "Account Name",
+                        "type": "text"
+                    },
+                    {
+                        "name": "Type",
+                        "label": "Account Type",
+                        "type": "text"
+                    },
+                    {
+                        "name": "RecordTypeId",
+                        "label": "Record Type ID",
+                        "type": "text"
+                    },
+                    {
+                        "name": "ParentId",
+                        "label": "Parent Account ID",
+                        "type": "text"
+                    },
+                    {
+                        "name": "BillingStreet",
+                        "label": "Billing Street",
+                        "type": "text"
+                    },
+                    {
+                        "name": "BillingCity",
+                        "label": "Billing City",
+                        "type": "text"
+                    },
+                    {
+                        "name": "BillingState",
+                        "label": "Billing State/Province",
+                        "type": "text"
+                    },
+                    {
+                        "name": "BillingPostalCode",
+                        "label": "Billing Zip/Postal Code",
+                        "type": "text"
+                    },
+                    {
+                        "name": "BillingCountry",
+                        "label": "Billing Country",
+                        "type": "text"
+                    },
+                    {
+                        "name": "BillingStateCode",
+                        "label": "Billing State/Province Code",
+                        "type": "text"
+                    },
+                    {
+                        "name": "BillingCountryCode",
+                        "label": "Billing Country Code",
+                        "type": "text"
+                    },
+                    {
+                        "name": "BillingLatitude",
+                        "label": "Billing Latitude",
+                        "type": "number"
+                    },
+                    {
+                        "name": "BillingLongitude",
+                        "label": "Billing Longitude",
+                        "type": "number"
+                    },
+                    {
+                        "name": "BillingGeocodeAccuracy",
+                        "label": "Billing Geocode Accuracy",
+                        "type": "text"
+                    },
+                    {
+                        "name": "BillingAddress",
+                        "label": "Billing Address",
+                        "type": "collection",
+                        "spec": [
+                            {
+                                "label": "Street",
+                                "name": "street",
+                                "type": "text"
+                            },
+                            {
+                                "label": "Country",
+                                "name": "country",
+                                "type": "text"
+                            },
+                            {
+                                "label": "Country code",
+                                "name": "countryCode",
+                                "type": "text"
+                            },
+                            {
+                                "label": "Latitude",
+                                "name": "latitude",
+                                "type": "number"
+                            },
+                            {
+                                "label": "Longitude",
+                                "name": "longitude",
+                                "type": "number"
+                            },
+                            {
+                                "label": "Postal code",
+                                "name": "postalCode",
+                                "type": "text"
+                            },
+                            {
+                                "label": "State",
+                                "name": "state",
+                                "type": "text"
+                            },
+                            {
+                                "label": "State code",
+                                "name": "stateCode",
+                                "type": "text"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "ShippingStreet",
+                        "label": "Shipping Street",
+                        "type": "text"
+                    },
+                    {
+                        "name": "ShippingCity",
+                        "label": "Shipping City",
+                        "type": "text"
+                    },
+                    {
+                        "name": "ShippingState",
+                        "label": "Shipping State/Province",
+                        "type": "text"
+                    },
+                    {
+                        "name": "ShippingPostalCode",
+                        "label": "Shipping Zip/Postal Code",
+                        "type": "text"
+                    },
+                    {
+                        "name": "ShippingCountry",
+                        "label": "Shipping Country",
+                        "type": "text"
+                    },
+                    {
+                        "name": "ShippingStateCode",
+                        "label": "Shipping State/Province Code",
+                        "type": "text"
+                    },
+                    {
+                        "name": "ShippingCountryCode",
+                        "label": "Shipping Country Code",
+                        "type": "text"
+                    },
+                    {
+                        "name": "ShippingLatitude",
+                        "label": "Shipping Latitude",
+                        "type": "number"
+                    },
+                    {
+                        "name": "ShippingLongitude",
+                        "label": "Shipping Longitude",
+                        "type": "number"
+                    },
+                    {
+                        "name": "ShippingGeocodeAccuracy",
+                        "label": "Shipping Geocode Accuracy",
+                        "type": "text"
+                    },
+                    {
+                        "name": "ShippingAddress",
+                        "label": "Shipping Address",
+                        "type": "collection",
+                        "spec": [
+                            {
+                                "label": "Street",
+                                "name": "street",
+                                "type": "text"
+                            },
+                            {
+                                "label": "Country",
+                                "name": "country",
+                                "type": "text"
+                            },
+                            {
+                                "label": "Country code",
+                                "name": "countryCode",
+                                "type": "text"
+                            },
+                            {
+                                "label": "Latitude",
+                                "name": "latitude",
+                                "type": "number"
+                            },
+                            {
+                                "label": "Longitude",
+                                "name": "longitude",
+                                "type": "number"
+                            },
+                            {
+                                "label": "Postal code",
+                                "name": "postalCode",
+                                "type": "text"
+                            },
+                            {
+                                "label": "State",
+                                "name": "state",
+                                "type": "text"
+                            },
+                            {
+                                "label": "State code",
+                                "name": "stateCode",
+                                "type": "text"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "Phone",
+                        "label": "Account Phone",
+                        "type": "text"
+                    },
+                    {
+                        "name": "Fax",
+                        "label": "Account Fax",
+                        "type": "text"
+                    },
+                    {
+                        "name": "AccountNumber",
+                        "label": "Account Number",
+                        "type": "text"
+                    },
+                    {
+                        "name": "Website",
+                        "label": "Website",
+                        "type": "url"
+                    },
+                    {
+                        "name": "PhotoUrl",
+                        "label": "Photo URL",
+                        "type": "url"
+                    },
+                    {
+                        "name": "Sic",
+                        "label": "SIC Code",
+                        "type": "text"
+                    },
+                    {
+                        "name": "Industry",
+                        "label": "Industry",
+                        "type": "text"
+                    },
+                    {
+                        "name": "AnnualRevenue",
+                        "label": "Annual Revenue",
+                        "type": "number"
+                    },
+                    {
+                        "name": "NumberOfEmployees",
+                        "label": "Employees",
+                        "type": "number"
+                    },
+                    {
+                        "name": "Ownership",
+                        "label": "Ownership",
+                        "type": "text"
+                    },
+                    {
+                        "name": "TickerSymbol",
+                        "label": "Ticker Symbol",
+                        "type": "text"
+                    },
+                    {
+                        "name": "Description",
+                        "label": "Account Description",
+                        "type": "text"
+                    },
+                    {
+                        "name": "Rating",
+                        "label": "Account Rating",
+                        "type": "text"
+                    },
+                    {
+                        "name": "Site",
+                        "label": "Account Site",
+                        "type": "text"
+                    },
+                    {
+                        "name": "CurrencyIsoCode",
+                        "label": "Account Currency",
+                        "type": "text"
+                    },
+                    {
+                        "name": "OwnerId",
+                        "label": "Owner ID",
+                        "type": "text"
+                    },
+                    {
+                        "name": "CreatedDate",
+                        "label": "Created Date",
+                        "type": "date"
+                    },
+                    {
+                        "name": "CreatedById",
+                        "label": "Created By ID",
+                        "type": "text"
+                    },
+                    {
+                        "name": "LastModifiedDate",
+                        "label": "Last Modified Date",
+                        "type": "date"
+                    },
+                    {
+                        "name": "LastModifiedById",
+                        "label": "Last Modified By ID",
+                        "type": "text"
+                    },
+                    {
+                        "name": "SystemModstamp",
+                        "label": "System Modstamp",
+                        "type": "date"
+                    },
+                    {
+                        "name": "LastActivityDate",
+                        "label": "Last Activity",
+                        "type": "date"
+                    },
+                    {
+                        "name": "LastViewedDate",
+                        "label": "Last Viewed Date",
+                        "type": "date"
+                    },
+                    {
+                        "name": "LastReferencedDate",
+                        "label": "Last Referenced Date",
+                        "type": "date"
+                    },
+                    {
+                        "name": "SourceSystemIdentifier",
+                        "label": "Source System ID",
+                        "type": "text"
+                    },
+                    {
+                        "name": "IsPartner",
+                        "label": "Partner Account",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "IsCustomerPortal",
+                        "label": "Customer Portal Account",
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "ChannelProgramName",
+                        "label": "Channel Program Name",
+                        "type": "text"
+                    },
+                    {
+                        "name": "ChannelProgramLevelName",
+                        "label": "Channel Program Level Name",
+                        "type": "text"
+                    },
+                    {
+                        "name": "Jigsaw",
+                        "label": "Data.com Key",
+                        "type": "text"
+                    },
+                    {
+                        "name": "JigsawCompanyId",
+                        "label": "Jigsaw Company ID",
+                        "type": "text"
+                    },
+                    {
+                        "name": "AccountSource",
+                        "label": "Account Source",
+                        "type": "text"
+                    },
+                    {
+                        "name": "SicDesc",
+                        "label": "SIC Description",
+                        "type": "text"
+                    },
+                    {
+                        "name": "OperatingHoursId",
+                        "label": "Operating Hour ID",
+                        "type": "text"
+                    },
+                    {
+                        "name": "ActivityMetricId",
+                        "label": "Activity Metric ID",
+                        "type": "text"
+                    },
+                    {
+                        "name": "ActivityMetricRollupId",
+                        "label": "Activity Metric Rollup ID",
+                        "type": "text"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 2,
+            "module": "facebook-conversion-leads:CreateALead",
+            "version": 1,
+            "parameters": {
+                "__IMTCONN__": 35871
+            },
+            "mapper": {
+                "data": [
+                    {
+                        "event_name": "Account created",
+                        "event_time": "{{5.CreatedDate}}",
+                        "user_data": {
+                            "em": "{{5.General_Email__c}}",
+                            "ph": "{{5.Phone}}",
+                            "fbc": {}
+                        },
+                        "custom_data": {
+                            "lead_event_source": "Salesforce"
+                        }
+                    }
+                ],
+                "pixelId": "1439883590031610"
+            },
+            "metadata": {
+                "designer": {
+                    "x": -315,
+                    "y": 101
+                },
+                "restore": {
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "label": "Facebook CAPI connection (Make System User (:::-1))",
+                            "data": {
+                                "scoped": "true",
+                                "connection": "facebook-business-extension"
+                            }
+                        }
+                    },
+                    "expect": {
+                        "data": {
+                            "mode": "chose",
+                            "items": [
+                                null
+                            ]
+                        },
+                        "pixelId": {
+                            "mode": "chose",
+                            "label": "Make CRM Pixel "
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:facebook-business-extension",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "data",
+                        "type": "array",
+                        "label": "Data",
+                        "required": true,
+                        "spec": [
+                            {
+                                "name": "event_name",
+                                "type": "text",
+                                "label": "Event Name",
+                                "required": true
+                            },
+                            {
+                                "name": "event_time",
+                                "type": "date",
+                                "label": "Event Time",
+                                "required": true
+                            },
+                            {
+                                "name": "user_data",
+                                "spec": [
+                                    {
+                                        "name": "lead_id",
+                                        "type": "text",
+                                        "label": "Lead ID"
+                                    },
+                                    {
+                                        "name": "em",
+                                        "type": "email",
+                                        "label": "Email"
+                                    },
+                                    {
+                                        "name": "ph",
+                                        "type": "text",
+                                        "label": "Phone Number"
+                                    },
+                                    {
+                                        "name": "fbc",
+                                        "spec": [
+                                            {
+                                                "name": "subdomain_idx",
+                                                "type": "number",
+                                                "label": "Subdomain Index"
+                                            },
+                                            {
+                                                "name": "creation_time",
+                                                "type": "uinteger",
+                                                "label": "Creation Time"
+                                            },
+                                            {
+                                                "name": "fbclid",
+                                                "type": "text",
+                                                "label": "Click ID"
+                                            }
+                                        ],
+                                        "type": "collection",
+                                        "label": "Facebook Click ID Components"
+                                    }
+                                ],
+                                "type": "collection",
+                                "label": "User Data"
+                            },
+                            {
+                                "name": "custom_data",
+                                "spec": [
+                                    {
+                                        "name": "lead_event_source",
+                                        "type": "text",
+                                        "label": "Lead Event Source",
+                                        "required": true
+                                    }
+                                ],
+                                "type": "collection",
+                                "label": "Custom Data"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "pixelId",
+                        "type": "select",
+                        "label": "Pixel ID"
+                    }
+                ]
+            }
+        }
+    ],
+    "metadata": {
+        "instant": false,
+        "version": 1,
+        "scenario": {
+            "roundtrips": 1,
+            "maxErrors": 3,
+            "autoCommit": true,
+            "autoCommitTriggerLast": true,
+            "sequential": false,
+            "slots": null,
+            "confidential": false,
+            "dataloss": false,
+            "dlq": false,
+            "freshVariables": false
+        },
+        "designer": {
+            "orphans": []
+        },
+        "zone": "eu1.make..com",
+        "notes": []
+    }
+}

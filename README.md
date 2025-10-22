@@ -1,67 +1,109 @@
-# OAuth Connection Creator for Make
+# Make OAuth Connection Orchestrator
 
-This server helps to create OAuth connections for Make accounts. It's a handy utility that simplifies the process of setting up OAuth connections. 
+This service automates the process of building OAuth connections on Make by analysing a scenario blueprint, gathering the required scopes, building a tailored connection specification, and looping through the consent + test workflow.
 
-There is more detailed document if you want to follow the whole process from the start: [LINK](https://dl.dropbox.com/s/b6y9d4et6g9jeux/Create%20an%20OAuth%20connection%20using%20API%20%281%29.pdf)
+## Highlights
 
-Watch the full process of connection creation and script walkthrough in this [video](https://www.loom.com/share/c8635ca5736544ee878bdf09e6b411ce).
+- Reads scenario blueprints from `./blueprints` and automatically selects the app involved in modules other than `facebook-conversion-leads`.
+- Resolves the scopes required for every module of that app by calling the Make `/api/v2/imt/apps/{app}` endpoint.
+- Pulls the dynamic connection form schema from `/api/v2/imt-forms/connections/create` and turns it into a ready-to-submit payload enriched with the collected scopes.
+- After a connection is created, writes a remapped blueprint (with the new connection id) to `./Updated Blueprints/`.
+- Provides verbose, colourised logging that walks through every step of the workflow.
+- Ships with a browser helper (`index.html`) for quick manual runs and diagnostics.
 
-## Installation & Setup
+## Getting Started
 
-Follow these steps to get the server up and running:
+1. **Install dependencies**
 
-1. **Set Up Environment Variables**: Rename the `.env.example` file to `.env` and fill in the required credentials.
+   ```bash
+   npm install
+   ```
 
-2. **Install Dependencies**: Navigate into the project directory and install the necessary dependencies using `npm install`:
+2. **Configure environment**
 
-    ```
-    cd <your-repo-name>
-    npm install
-    ```
+   Copy `.env.example` to `.env` and populate the following variables:
 
-3. **Start the Server**: Start the server by running the following command:
+   | Variable | Purpose |
+   | --- | --- |
+   | `INSTANCE_URL` | Base Make instance URL, e.g. `https://us1.make.com` |
+   | `AUTH_TOKEN` | Make API token |
+   | `TEAM_ID` | Team identifier used in API calls |
+   | `HOST` / `PORT` | Hostname and port the helper UI should use in links |
+   | `BLUEPRINT_FILE` | (Optional) Default blueprint filename located in `./blueprints` |
+   | `ACCOUNT_NAME` / `ACCOUNT_TYPE` / `PROPERTY` | Optional overrides applied to the generated connection spec |
 
-    ```
-    node server.js
-    ```
+3. **Provide blueprints**
 
-    Alternatively, if a start script is defined in `package.json`, you can use:
+   Drop exported scenario blueprints (`.json`) into the `./blueprints` folder. Each file can be referenced by name (e.g. `hubspot-crm.json`) via the UI or API.
 
-    ```
-    npm start
-    ```
-Now, your server should be up and running!
+4. **Run the server**
 
-4. **Open in browser http://server:port page replace this with credentials set in your .env file for example: http://123.456.789.1:777/
+   ```bash
+   node server.js
+   ```
 
+   The server validates the critical environment variables on startup and will exit early if any are missing.
 
-## Please pay attention to an API Call for Connection Creation in server.js
+5. **Launch the helper UI**
 
-The server makes an API call to the Make platform to create a connection. The request to create a connection is done via a `POST` request, which contains a JSON object in the body with properties `accountName`, `accountType`, `scopes`, and others like a custom for each connection `property`. The values for these properties should correspond to the correct account details you want to connect to. You can see this in the code as follows:
+   Open `http://<HOST>:<PORT>/` (defaults to `http://localhost:777/`). Select a blueprint from the dropdown (and optionally override the account name). The server will analyse the blueprint, build the connection payload, create the connection, open the Make consent screen, and save an updated blueprint copy with the new connection id.
 
-```javascript
-const createConnectionCall = `${instance}/api/v2/connections?teamId=${teamId}&inspector=1`;
+## API Overview
 
-fetch(createConnectionCall, {
-    method: 'POST',
-    headers: authHeaders,
-    body: JSON.stringify({
-        "accountName": "Google Analytics 4 last",
-        "accountType": "google-analytics-4",
-        "property": "11111"
-    })
-})
+### `POST /connection/start`
 
+Accepts form-encoded input (`blueprint`, optional `accountName`) and responds with an HTTP redirect to the Make consent URL. This powers the browser helper.
 
-Please note that the `accountName`, `accountType`, and `property` must have correct values according to the [Make API documentation](https://www.make.com/en/api-documentation/connections-post). Failing to provide the correct values may lead to an error response such as:
+### `POST /connection`
 
+Triggers the full connection workflow.
+
+```json
 {
-  message: 'The request failed due to failure of a previous request.',
-  code: 'SC424',
-  suberrors: [
-    {
-      message: '[403] Error: 403\nThe caller does not have permission',
-      name: 'RuntimeError'
-    }
-  ]
+  "blueprint": "hubspot-crm.json",
+  "accountName": "HubSpot CRM connection",
+  "overrides": {
+    "customScopes": ["crm.objects.contacts.read"]
+  }
 }
+```
+
+- `blueprint` defaults to `BLUEPRINT_FILE` when omitted.
+- `accountName` and `overrides` are optional overrides applied to the generated payload.
+- Response contains the consent URL, connection id, Make connection metadata, and the scopes identified for the selected app.
+
+### `POST /test`
+
+```json
+{
+  "connection": "123456"
+}
+```
+
+Runs the Make `connections/:id/test` endpoint and returns the raw response.
+
+## Project Structure
+
+```
+src/
+  config.js                    # Environment & path management
+  server.js                    # Express setup and bootstrap
+  controllers/connection...    # Request handlers
+  services/                    # Blueprint parsing, Make API calls, spec builder
+  utils/logger.js              # Console logging helpers
+blueprints/                    # Place scenario blueprints here
+index.html                     # Browser helper UI
+server.js                      # Entry point (delegates to src/server)
+```
+
+## Logging
+
+Every major step emits a clearly labelled log (viewable in the terminal output):
+
+- blueprint loading and module discovery
+- scope aggregation from the app definition
+- fetching the connection form schema
+- payload assembly and submission
+- consent URL retrieval and connection testing
+
+Set `DEBUG=1` in the environment to enable debug-level output.
